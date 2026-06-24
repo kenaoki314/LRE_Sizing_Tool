@@ -58,8 +58,8 @@ def get_propellant_properties(propellant:str, OF_query: float) -> dict:
     Mmol_value = np.interp(OF_query, OF, Mmol)
     return {'Tc': Tc_value, 'gamma': gamma_value, 'Mmol': Mmol_value}
 if __name__ == "__main__":
-    propellant = 'n2o_ethanol'
-    OF_ratio = 99
+    propellant = 'lox_lh2'
+    OF_ratio = 4.67
     result = get_propellant_properties(propellant, OF_ratio )
     print(f'For {propellant} with O/F ratio {OF_ratio}')
     print(f"Tc = {result['Tc']:.1f} K")

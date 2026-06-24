@@ -11,8 +11,6 @@ import pytest
 from src.thermochemistry import get_combustion_properties
 
 
-# Ground truth directly from your RPA sweep.
-# List of tuples: (of_ratio, expected_Tc, expected_gamma, expected_Mmol)
 LOX_RP1_TABLE = [
     (2.00, 3284.9177, 1.1827, 20.7375),
     (2.25, 3466.1841, 1.1761, 21.9373),
@@ -47,3 +45,42 @@ def test_extrapolation_blocked_high():
     """Query above O/F range must raise ValueError."""
     with pytest.raises(ValueError):
         get_combustion_properties(of_ratio=4.0, propellant="lox_rp1")
+
+# --- LOX/LH2 table nodes ---
+LOX_LH2_TABLE = [
+    (4.0, 2921.5899, 1.1878,  9.9789),
+    (4.5, 3094.3721, 1.1755, 10.8893),
+    (5.0, 3229.5660, 1.1688, 11.7573),
+    (5.5, 3331.7752, 1.1670, 12.5796),
+    (6.0, 3405.1552, 1.1690, 13.3541),
+    (6.5, 3453.8322, 1.1731, 14.0792),
+    (7.0, 3482.1468, 1.1771, 14.7552),
+]
+
+@pytest.mark.parametrize("of, Tc_ref, gamma_ref, Mmol_ref", LOX_LH2_TABLE)
+def test_loxlh2_table_nodes(of, Tc_ref, gamma_ref, Mmol_ref):
+    """At table nodes, interpolation must return exact CEA values."""
+    props = get_combustion_properties(of_ratio=of, propellant="lox_lh2")
+    assert props["Tc"]    == pytest.approx(Tc_ref,    abs=0.01)
+    assert props["gamma"] == pytest.approx(gamma_ref, abs=0.0001)
+    assert props["Mmol"]  == pytest.approx(Mmol_ref,  abs=0.001)
+
+
+# --- N2O/Ethanol table nodes ---
+N2O_ETHANOL_TABLE = [
+    (3.5, 2790.3161, 1.2112, 23.8311),
+    (4.0, 2967.9068, 1.1862, 24.8302),
+    (4.5, 3065.6945, 1.1694, 25.6021),
+    (5.0, 3103.3217, 1.1631, 26.1816),
+    (5.5, 3106.4202, 1.1614, 26.6430),
+    (6.0, 3091.4573, 1.1611, 26.9730),
+    (6.5, 3066.9443, 1.1616, 27.2545),
+]
+
+@pytest.mark.parametrize("of, Tc_ref, gamma_ref, Mmol_ref", N2O_ETHANOL_TABLE)
+def test_n2o_ethanol_table_nodes(of, Tc_ref, gamma_ref, Mmol_ref):
+    """At table nodes, interpolation must return exact CEA values."""
+    props = get_combustion_properties(of_ratio=of, propellant="n2o_ethanol")
+    assert props["Tc"]    == pytest.approx(Tc_ref,    abs=0.01)
+    assert props["gamma"] == pytest.approx(gamma_ref, abs=0.0001)
+    assert props["Mmol"]  == pytest.approx(Mmol_ref,  abs=0.001)
