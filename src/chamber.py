@@ -8,24 +8,46 @@ Gamma function = sqrt(gamma)*[2/(gamma + 1))]exp((gamma+1)/2(gamma -1))
 gamma is specific heat ratio c_p / c_v
 c_p is specifc heat capacity at constant pressure 
 c_v is specific heat capacity at constant volume
+Supported propellant combinations:
+    - lox_rp1  : LOX (90 K) / RP-1 (293 K), Pc = 3.45 MPa, shifting equilibrium
+    - lox_lh2 : LOX (90K) / H(20K), Pc=3.45 MPa, shifting equilibrium. 
+    - N2O_ethanol: N2O (293K) / C2H5OH Ethanol (293K) Pc = 3.45 Mpa, Shfitig equilibum 
 
 Author Ken Aoki, 10:12PM 6/23/2026 """
 
 import math
+from thermochemistry import get_propellant_properties
+
 
 
 def GammaFunc(gamma:float)-> float :
-    """turns gamma into Vandenkerchove function"""
-    gamma = 1.13 ####PLACE HOLDER FOR CALCULATED gamma VALUE FROM thermochemistry.py
+    """turns gamma into Vandenkerchove function
+    gamma unitless
+    gamma function uniltess """
+    #gamma = 1.67 ####PLACE HOLDER FOR CALCULATED gamma VALUE FROM thermochemistry.py
+    
     VDK_function = math.sqrt(gamma) * (2/(gamma +1))**((gamma+1)/(2*(gamma-1)))
-    return {'GammaFunction': VDK_function }
-Gamma = GammaFunc(1.17)
+    return  VDK_function
 
-def Cstar(Gamma:float, R: float, Tc:float) -> float: 
+
+def Cstar(VDK_function:float, R: float, Tc:float) -> float: 
     """calculates C star as a function of Vandenkerchove function, Chamber Temperature, and R specific gas constant
-    with R_specific = R_universal / M_mol"""
-    Vandenkerckhove = Gamma 
-    R = 8.314/0.01118  # [ J / (mol*K) ] ###PLACE HOLDER FOR CALCULATED Mmol VALUE FROM thermochemistry.py
-    Tc = 3140.3
+    with R_specific = R_universal / M_mol
+   returns: C* [m/s
+    R J/kg*K
+    Tc K]"""
+    Vandenkerckhove = VDK_function 
+    #R = 8.314/0.01118  # [ J / (mol*K) ] ###PLACE HOLDER FOR CALCULATED Mmol VALUE FROM thermochemistry.py
+    #Tc = 3140.3 K
     Cstar = math.sqrt(R * Tc) / Vandenkerckhove
-    return {'Cstar':Cstar}
+    return Cstar
+if __name__ == '__main__':
+    props = get_propellant_properties('n2o_ethanol', 5.67)
+    Tc = props['Tc']
+    gamma = props['gamma']
+    Mmol = props['Mmol']
+    R_universal = 8.314
+    R_specific = R_universal / Mmol
+    gamma_func_result = GammaFunc(gamma)
+    cstar_result = Cstar(gamma_func_result, R_specific, Tc)
+    print(f'characteristic velocity c* is: {cstar_result}')
