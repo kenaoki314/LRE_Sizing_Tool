@@ -104,3 +104,40 @@ def exit_conditions(Pc: float, Tc: float, gamma: float, Me: float, Mmol:float) -
     Pe = pressure_exit(gamma, Pc, Me)
     Ve = velocity_exit(Me, gamma, R_specific, Te)
     return Pe, Te, Ve
+def exit_area(epsilon:float, At:float )-> float: 
+    """exit area is equal to epsilon * throat area 
+    args: 
+    epsilon unitless
+    throat area [m^2]
+    returns: 
+    exit area [m^2]"""
+    A_exit = epsilon * At 
+    return A_exit 
+def thrust_coefficient(gamma: float, Pe: float, Pc: float, Pa:float , epsilon: float) -> float:
+    """thrust coefficeint determines how efficient a rocket engine expands gas 
+    to solve by normalizeation of the momentum thrust and pressure thrust 
+    Cf = Cf = sqrt(2gamma^2/(gamma-1) * (2/(gamma+1))^((gamma+1)/(gamma-1)) * [1-(Pe/Pc)^((gamma-1)/gamma)]) + (Pe-Pa)/Pc * epsilon
+    args: 
+    gamma: specific heat ratio
+    epsilon: Area ratio Ae/At 
+    Pe: pressure at exit [Pa]
+    Pc: pressure in chamber [Pa]
+    Pa: ambient pressure [Pa] at sea level = 1 atm, in vaccum = 0
+    returns
+    Cf: thrust coefficient"""
+    momentum_thrust = math.sqrt(2*gamma**2/(gamma-1) * (2/(gamma+1))**((gamma+1)/(gamma-1)) * (1 - (Pe/Pc)**((gamma-1)/gamma)))
+    pressure_thrust = (Pe - Pa)/Pc * epsilon
+    Cf = momentum_thrust + pressure_thrust
+    return Cf 
+def throat_area(thrust: float ,Cf: float, Pc: float) -> float: 
+    """calculate the throat area from the equation At = F / (Cf * Pc)
+    args
+    F: thrust [N]
+    Cf: thrust coefficient
+    Pc: pressure at chamber [Pa]
+    returns
+    At: throat area [m^2]"""
+    At = thrust /(Pc * Cf)
+    return At 
+
+    
